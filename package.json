@@ -1,0 +1,24 @@
+{
+  "name": "final-wishpers",
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "pnpm@10.11.0",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:be\" \"npm run dev:fe\"",
+    "dev:be": "cd server && npm run start:dev",
+    "dev:fe": "cd client && npm run dev",
+    "build": "npm run build:be && npm run build:fe",
+    "build:be": "cd server && npm run build",
+    "build:fe": "cd client && npm run build",
+    "install:all": "npm install && cd server && npm install && cd ../client && npm install && cd ../contracts && npm install",
+    "start:be": "cd server && npm run start",
+    "start:fe": "cd client && npm run preview"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "packageManager": "pnpm@10.11.0+sha512.6540583f41cc5f628eb3d9773ecee802f4f9ef9923cc45b69890fb47991d4b092964694ec3a4f738a420c918a333062c8b925d312f42e4f0c263eb603551f977"
+}
