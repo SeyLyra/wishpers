@@ -1,3 +1,48 @@
+# ✨ Soul Guide · Wishpers ✨
+
+> Soft, sparkly, and helpful—your cute companion to the Wishpers world.
+
+![Soul](client/public/soul.png)
+
+## 🪽 Quickstart (cute & fast)
+
+1) Wake the chain
+   - `cd contracts && npx hardhat node`
+
+2) Weave the contracts
+   - `npx hardhat run --network localhost scripts/deploy.js`
+
+3) Summon your Soul (agent)
+   - `npx hardhat run --network localhost scripts/createAgent.js`
+
+4) Whisper the addresses to the frontend
+   - `node scripts/sync-addresses.js`
+
+5) Open your portal
+   - Server: `cd server && npm run start:dev`
+   - Client: `cd client && npm run dev` → http://localhost:5173/
+
+## 💜 Cute Names · Real Things
+
+- Soul = Agent (proxy of `AgentLogic`)
+- Heart = Vault (holds funds, performs swaps)
+- Memory = MemoryContract (stores states, trades, preferences)
+- Sparkles = Events (`TradeExecuted`, `Swap`)
+
+## 🧁 Env Sprinkles
+
+Frontend accepts both `VITE_` and `APP_` env styles:
+
+- RPC: `VITE_RPC_URL` or `APP_RPC_URL` (local: `http://127.0.0.1:8545/`)
+- Agent: `VITE_AGENT_ADDRESS` or `APP_AGENT_ADDRESS`
+- Vault: `VITE_VAULT_ADDRESS` or `APP_VAULT_ADDRESS`
+- Base token (WUSD): `VITE_BASE_TOKEN_ADDRESS` or `APP_BASE_TOKEN_ADDRESS`
+- Payment token (WPMT): `VITE_PAYMENT_TOKEN_ADDRESS` or `APP_PAYMENT_TOKEN_ADDRESS`
+
+Pro tip: run `node scripts/sync-addresses.js` after deploy—it auto-fills `client/.env.local`.
+
+---
+
 # Wishpers — Complete Documentation
 
 This document provides a comprehensive guide to the project, including architecture, contracts, environment configuration, local and testnet setup, frontend/backend integration, trading demo, and troubleshooting.
