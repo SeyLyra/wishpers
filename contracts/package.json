@@ -1,48 +1,37 @@
 {
-  "name": "immortal-ai-souls-contracts",
+  "name": "wishpers-quack-contracts",
   "version": "1.0.0",
-  "description": "Smart contracts for Immortal AI Souls on Chain",
+  "description": "Smart contracts for Wishpers: QUACK Edition on DuckChain",
   "main": "index.js",
   "scripts": {
     "compile": "hardhat compile",
     "test": "hardhat test",
-    "test:coverage": "hardhat coverage",
-    "deploy:testnet": "hardhat run scripts/deploy.js --network sei-testnet",
-    "deploy:mainnet": "hardhat run scripts/deploy.js --network sei-mainnet",
-    "verify:testnet": "hardhat verify --network sei-testnet",
-    "verify:mainnet": "hardhat verify --network sei-mainnet",
-    "node": "hardhat node",
-    "clean": "hardhat clean",
-    "size": "hardhat size-contracts"
+    "deploy:local": "hardhat run scripts/deploy.js --network hardhat",
+    "deploy:testnet": "hardhat run scripts/deploy.js --network duckchainTestnet",
+    "deploy:mainnet": "hardhat run scripts/deploy.js --network duckchain",
+    "deploy:somniaTestnet": "hardhat run scripts/deploy.js --network somniaTestnet",
+    "deploy:somnia": "hardhat run scripts/deploy.js --network somnia",
+    "verify:testnet": "hardhat verify --network duckchainTestnet",
+    "verify:mainnet": "hardhat verify --network duckchain",
+    "verify:somniaTestnet": "hardhat verify --network somniaTestnet",
+    "verify:somnia": "hardhat verify --network somnia"
   },
   "keywords": [
-    "solidity",
-    "ethereum",
-    "smart-contracts",
-    "nft",
-    "sei-network",
-    "hardhat"
+    "duckchain",
+    "trading",
+    "ai-agents",
+    "defi",
+    "ethereum"
   ],
-  "author": "Immortal AI Souls Team",
+  "author": "Wishpers Team",
   "license": "MIT",
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^4.0.0",
-    "@nomicfoundation/hardhat-network-helpers": "^1.0.8",
-    "@nomicfoundation/hardhat-chai-matchers": "^2.0.2",
-    "@nomicfoundation/hardhat-ethers": "^3.0.4",
-    "@nomicfoundation/hardhat-verify": "^2.0.1",
-    "@typechain/ethers-v6": "^0.5.0",
-    "@typechain/hardhat": "^9.1.0",
-    "@types/chai": "^4.3.5",
-    "@types/mocha": "^10.0.1",
-    "chai": "^4.3.7",
-    "ethers": "^6.8.0",
-    "hardhat": "^2.19.0",
-    "hardhat-gas-reporter": "^1.0.9",
-    "solidity-coverage": "^0.8.5",
-    "typechain": "^8.3.1"
+    "dotenv": "^16.3.1",
+    "hardhat": "^2.19.0"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^5.0.0"
+    "@openzeppelin/contracts": "^4.9.6",
+    "@openzeppelin/contracts-upgradeable": "^4.9.6"
   }
-} 
+}

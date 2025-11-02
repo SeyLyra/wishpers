@@ -1,122 +1,126 @@
-const { ethers } = require("hardhat");
+const { ethers, network } = require("hardhat");
+const fs = require("fs");
 
 async function main() {
-  console.log("🚀 Deploying Immortal AI Souls contracts...");
+  console.log("🚀 Deploying Wishpers core contracts...");
 
-  // Get the deployer account
   const [deployer] = await ethers.getSigners();
-  console.log("📝 Deploying contracts with account:", deployer.address);
-  console.log("💰 Account balance:", (await deployer.provider.getBalance(deployer.address)).toString());
-
-  // Deploy the main contract
-  const ImmortalSouls = await ethers.getContractFactory("ImmortalSouls");
-  console.log("🏗️  Deploying ImmortalSouls...");
-  
-  const immortalSouls = await ImmortalSouls.deploy();
-  await immortalSouls.waitForDeployment();
-  
-  const contractAddress = await immortalSouls.getAddress();
-  console.log("✅ ImmortalSouls deployed to:", contractAddress);
-
-  // Get deployment info
-  const deployment = await immortalSouls.deploymentTransaction();
-  console.log("📊 Deployment transaction hash:", deployment.hash);
-  console.log("⛽ Gas used:", deployment.gasLimit.toString());
-
-  // Verify deployment
-  console.log("🔍 Verifying deployment...");
-  const code = await deployer.provider.getCode(contractAddress);
-  if (code === "0x") {
-    console.log("❌ Contract deployment failed - no code at address");
-    return;
-  }
-  console.log("✅ Contract deployment verified successfully");
-
-  // Initialize contract with some basic upgrades
-  console.log("🔧 Initializing contract with basic upgrades...");
-  
-  try {
-    // Add some basic upgrades
-    const basicUpgrade = await immortalSouls.addUpgrade(
-      1, // upgradeId
-      "Basic Enhancement", // name
-      "Basic soul enhancement", // description
-      ethers.parseEther("0.1"), // cost
-      [1] // requirements (level 1)
-    );
-    await basicUpgrade.wait();
-    console.log("✅ Basic upgrade added");
-
-    const advancedUpgrade = await immortalSouls.addUpgrade(
-      2, // upgradeId
-      "Advanced Enhancement", // name
-      "Advanced soul enhancement", // description
-      ethers.parseEther("0.5"), // cost
-      [5] // requirements (level 5)
-    );
-    await advancedUpgrade.wait();
-    console.log("✅ Advanced upgrade added");
-
-    const legendaryUpgrade = await immortalSouls.addUpgrade(
-      3, // upgradeId
-      "Legendary Enhancement", // name
-      "Legendary soul enhancement", // description
-      ethers.parseEther("1.0"), // cost
-      [10] // requirements (level 10)
-    );
-    await legendaryUpgrade.wait();
-    console.log("✅ Legendary upgrade added");
-
-  } catch (error) {
-    console.log("⚠️  Warning: Could not add upgrades:", error.message);
-  }
-
-  // Print deployment summary
-  console.log("\n🎉 Deployment Summary:");
-  console.log("=========================");
-  console.log("Contract: ImmortalSouls");
-  console.log("Address:", contractAddress);
-  console.log("Network:", network.name);
   console.log("Deployer:", deployer.address);
-  console.log("Transaction:", deployment.hash);
-  
-  // Save deployment info to file
+  console.log("Network:", network.name);
+
+  // Env configuration
+  const BASE_TOKEN_ADDRESS = process.env.BASE_TOKEN_ADDRESS;
+  const PAYMENT_TOKEN_ADDRESS = process.env.PAYMENT_TOKEN_ADDRESS;
+  const TREASURY_ADDRESS = process.env.TREASURY_ADDRESS || deployer.address;
+
+  // Helper to deploy OpenZeppelin preset ERC20 for local/testing
+  async function ensureToken(address, name, symbol) {
+    if (address && ethers.isAddress(address)) {
+      console.log(`Using existing token for ${name}:`, address);
+      return address;
+    }
+    console.log(`\n🪙 Deploying ${name} token (${symbol})...`);
+    // Deploy local TestToken (OZ v5 no longer includes presets)
+    const TestToken = await ethers.getContractFactory("TestToken");
+    const token = await TestToken.deploy(name, symbol);
+    await token.waitForDeployment();
+    // Initial supply is minted to deployer in constructor
+    console.log(`✅ ${name} deployed at:`, await token.getAddress());
+    return await token.getAddress();
+  }
+
+  // 1) Tokens (base/payment)
+  const baseTokenAddress = await ensureToken(BASE_TOKEN_ADDRESS, "Wishpers USD", "WUSD");
+  const paymentTokenAddress = await ensureToken(PAYMENT_TOKEN_ADDRESS, "Wishpers Payment", "WPMT");
+
+  // 2) Vault
+  console.log("\n💰 Deploying Vault...");
+  const Vault = await ethers.getContractFactory("Vault");
+  const vault = await Vault.deploy(baseTokenAddress);
+  await vault.waitForDeployment();
+  console.log("✅ Vault:", await vault.getAddress());
+
+  // 3) MemoryContract
+  console.log("\n🧠 Deploying MemoryContract...");
+  const MemoryContract = await ethers.getContractFactory("MemoryContract");
+  const memoryContract = await MemoryContract.deploy();
+  await memoryContract.waitForDeployment();
+  console.log("✅ MemoryContract:", await memoryContract.getAddress());
+
+  // 4) Strategy
+  console.log("\n📈 Deploying Strategy...");
+  const Strategy = await ethers.getContractFactory("Strategy");
+  const strategy = await Strategy.deploy(await vault.getAddress());
+  await strategy.waitForDeployment();
+  console.log("✅ Strategy:", await strategy.getAddress());
+
+  // 5) AgentLogic implementation (UUPS)
+  console.log("\n🤖 Deploying AgentLogic implementation...");
+  const AgentLogic = await ethers.getContractFactory("AgentLogic");
+  const agentLogicImpl = await AgentLogic.deploy();
+  await agentLogicImpl.waitForDeployment();
+  console.log("✅ AgentLogic implementation:", await agentLogicImpl.getAddress());
+
+  // 6) AgentRegistry
+  console.log("\n📇 Deploying AgentRegistry...");
+  const AgentRegistry = await ethers.getContractFactory("AgentRegistry");
+  const registry = await AgentRegistry.deploy();
+  await registry.waitForDeployment();
+  console.log("✅ AgentRegistry:", await registry.getAddress());
+
+  // 7) AgentFactory
+  console.log("\n🏭 Deploying AgentFactory...");
+  const AgentFactory = await ethers.getContractFactory("AgentFactory");
+  const factory = await AgentFactory.deploy(await registry.getAddress(), await agentLogicImpl.getAddress());
+  await factory.waitForDeployment();
+  console.log("✅ AgentFactory:", await factory.getAddress());
+
+  // Grant factory role in registry
+  console.log("\n🔐 Configuring roles...");
+  const FACTORY_ROLE = await registry.AGENT_FACTORY_ROLE();
+  await (await registry.grantRole(FACTORY_ROLE, await factory.getAddress())).wait();
+  console.log("✅ AGENT_FACTORY_ROLE granted to AgentFactory");
+
+  // 8) Marketplace
+  console.log("\n🛍️ Deploying Marketplace...");
+  const Marketplace = await ethers.getContractFactory("Marketplace");
+  const marketplace = await Marketplace.deploy(paymentTokenAddress, TREASURY_ADDRESS);
+  await marketplace.waitForDeployment();
+  console.log("✅ Marketplace:", await marketplace.getAddress());
+
+  // Save deployment info
   const deploymentInfo = {
-    contract: "ImmortalSouls",
-    address: contractAddress,
     network: network.name,
     deployer: deployer.address,
-    transaction: deployment.hash,
+    treasury: TREASURY_ADDRESS,
+    tokens: {
+      baseToken: baseTokenAddress,
+      paymentToken: paymentTokenAddress,
+    },
+    contracts: {
+      Vault: await vault.getAddress(),
+      MemoryContract: await memoryContract.getAddress(),
+      Strategy: await strategy.getAddress(),
+      AgentLogicImplementation: await agentLogicImpl.getAddress(),
+      AgentRegistry: await registry.getAddress(),
+      AgentFactory: await factory.getAddress(),
+      Marketplace: await marketplace.getAddress(),
+    },
     timestamp: new Date().toISOString(),
-    upgrades: [
-      { id: 1, name: "Basic Enhancement", cost: "0.1 SEI", requirement: "Level 1" },
-      { id: 2, name: "Advanced Enhancement", cost: "0.5 SEI", requirement: "Level 5" },
-      { id: 3, name: "Legendary Enhancement", cost: "1.0 SEI", requirement: "Level 10" }
-    ]
   };
 
-  const fs = require("fs");
-  fs.writeFileSync(
-    `deployment-${network.name}-${Date.now()}.json`,
-    JSON.stringify(deploymentInfo, null, 2)
-  );
-  console.log("💾 Deployment info saved to file");
+  fs.writeFileSync("deployment.json", JSON.stringify(deploymentInfo, null, 2));
+  console.log("\n📁 Deployment info saved to deployment.json");
 
-  // Instructions for next steps
-  console.log("\n📋 Next Steps:");
-  console.log("1. Update your backend .env file with the contract address");
-  console.log("2. Verify the contract on Sei Scan (if available)");
-  console.log("3. Test the contract functions");
-  console.log("4. Update your frontend with the new contract address");
-  
-  console.log("\n🔗 Contract Address for Backend:");
-  console.log(`SEI_CONTRACT_ADDRESS=${contractAddress}`);
+  console.log("\n✅ Core deployment complete.");
+  console.log("Next steps:");
+  console.log("- Use AgentFactory to deploy agents via proxies (initialize with vault/memory).");
+  console.log("- Optionally deploy governance (Timelock + Governance) with a votes-enabled token.");
 }
 
-// Handle errors
 main()
   .then(() => process.exit(0))
   .catch((error) => {
     console.error("❌ Deployment failed:", error);
     process.exit(1);
-  }); 
+  });

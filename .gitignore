@@ -1,1 +1,43 @@
 node_modules
+
+# Environment files (root and packages)
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Package-specific envs
+client/.env
+client/.env.local
+client/.env.development
+client/.env.production
+client/.env.test
+client/.env.development.local
+client/.env.test.local
+client/.env.production.local
+
+server/.env
+server/.env.local
+server/.env.development
+server/.env.production
+server/.env.test
+server/.env.development.local
+server/.env.test.local
+server/.env.production.local
+
+contracts/.env
+contracts/.env.local
+contracts/.env.development
+contracts/.env.production
+contracts/.env.test
+contracts/.env.development.local
+contracts/.env.test.local
+contracts/.env.production.local
+
+# Keep example env files tracked
+!client/.env.example
+!contracts/.env.example
