@@ -2,7 +2,7 @@
 
 > Soft, sparkly, and helpful—your cute companion to the Wishpers world.
 
-![Soul](client/public/soul.png)
+![Soul](client/public/souls.svg)
 
 ## 🪽 Quickstart (cute & fast)
 
