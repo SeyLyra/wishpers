@@ -1,0 +1,31 @@
+# Deployed Addresses (Wishpers)
+
+- Network: custom
+- Timestamp: 2025-11-04T01:27:43.731Z
+- Deployer: `0x2FF91E6FE477159A84fe4208C6cA9601c68935D4`
+- Treasury: `0x2ff91e6fe477159a84fe4208c6ca9601c68935d4`
+
+## Core Contracts
+- Vault: `0xA473bc736Ba0Fa20226FbBB0837C36c98ee52047`
+- MemoryContract: `0xB27Bc3EBf57259981E511EFE16559b64F1d8dBc6`
+- Strategy: `0x65a6b916cfA805293Fa6fFf1D908388FdD620c69`
+- AgentLogicImplementation: `0x9CFb670C4cA43F8c00F4Aa763007c1A6F633DdE1`
+- AgentRegistry: `0x60f9709fe48A52206195dB5a88e3b27b6db6E193`
+- AgentFactory: `0x036993da05C13b57Cf143ACE7553C9a0059E2c40`
+- Marketplace: `0xEFAB6d7C927aaC0fEFEa481D32618d4dc451Ef2E`
+
+## Tokens (Faucet)
+- ATOM (FaucetToken): `0xAc234b3339dD04B2Fb4F5A9928544414707589Eb`
+- WETH (FaucetToken): `0x0a4FDabFF4c2249552397407eFBB7734ADf2b596`
+
+## Adapters
+- SomniaPriceOracleMock: `0x9A1ECcA1292483576718a47e98Cc5321d6a426Dc`
+- SomniaStakingAdapter: `0x4a420eA84d7c033C34672E0f4bE9a73c66b60512`
+- SomniaLendingAdapter: `0x7C0d3174Db047E7eC5b7d24995241b961277ADae`
+  - Mocks:
+    - MockYieldFarm: `0x7Aa2370b88e079dbF867013Be8162B3C7c2F0Bf7`
+    - MockLendingPool: `0x79C047CEFAD85505434d93C193a7eADb0Ebb8321`
+    - aTokens: {"base":"0x288b583f5868080015867e9F2CeD334AD18a968E","ATOM":"0xeBD9AA38b6Dd0778412e057ABd4adA3a269f4765","WETH":"0x1B4dBf8B62019FFE3bbA78EF604f28B8E9b61834"}
+
+## Notes
+- These addresses are sourced from `contracts/deployment.json`.

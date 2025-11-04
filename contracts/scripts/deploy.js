@@ -10,28 +10,58 @@ async function main() {
 
   // Env configuration
   const BASE_TOKEN_ADDRESS = process.env.BASE_TOKEN_ADDRESS;
-  const PAYMENT_TOKEN_ADDRESS = process.env.PAYMENT_TOKEN_ADDRESS;
+  const PAYMENT_TOKEN_ADDRESS = process.env.PAYMENT_TOKEN_ADDRESS; // unused; Marketplace will use native STT
   const TREASURY_ADDRESS = process.env.TREASURY_ADDRESS || deployer.address;
 
-  // Helper to deploy OpenZeppelin preset ERC20 for local/testing
-  async function ensureToken(address, name, symbol) {
+  // Helper to deploy FaucetToken for local/testing with faucet functionality
+  async function ensureToken(address, name, symbol, faucetAmount, cooldown) {
     if (address && ethers.isAddress(address)) {
       console.log(`Using existing token for ${name}:`, address);
       return address;
     }
-    console.log(`\n🪙 Deploying ${name} token (${symbol})...`);
-    // Deploy local TestToken (OZ v5 no longer includes presets)
-    const TestToken = await ethers.getContractFactory("TestToken");
-    const token = await TestToken.deploy(name, symbol);
+    console.log(`\n🪙 Deploying ${name} token (${symbol}) with faucet...`);
+    // Deploy FaucetToken with configurable faucet amounts
+    const FaucetToken = await ethers.getContractFactory("FaucetToken");
+    const token = await FaucetToken.deploy(
+      name,
+      symbol,
+      ethers.parseEther(faucetAmount.toString()), // Amount per claim
+      cooldown // Cooldown in seconds (0 = no cooldown for testing)
+    );
     await token.waitForDeployment();
-    // Initial supply is minted to deployer in constructor
     console.log(`✅ ${name} deployed at:`, await token.getAddress());
+    console.log(`   Faucet: ${faucetAmount} ${symbol} per claim, ${cooldown}s cooldown`);
     return await token.getAddress();
   }
 
-  // 1) Tokens (base/payment)
-  const baseTokenAddress = await ensureToken(BASE_TOKEN_ADDRESS, "Wishpers USD", "WUSD");
-  const paymentTokenAddress = await ensureToken(PAYMENT_TOKEN_ADDRESS, "Wishpers Payment", "WPMT");
+  // 1) Base Token (USDC for vault/trading) with faucet functionality
+  // Faucet parameters: (address, name, symbol, faucetAmount, cooldownSeconds)
+  const baseTokenAddress = await ensureToken(
+    BASE_TOKEN_ADDRESS,
+    "Mock USDC",
+    "USDC",
+    1000, // 1000 USDC per claim
+    0     // No cooldown for testing (set to 3600 for 1 hour, 86400 for 24 hours)
+  );
+  const paymentTokenAddress = ethers.ZeroAddress; // native STT for marketplace
+
+  // 1b) Extra mock tokens for trading/rebalancing with faucet
+  console.log("\n🪙 Deploying extra mock tokens with faucet...");
+  const extraTokens = {};
+  extraTokens.ATOM = await ensureToken(
+    process.env.ATOM_TOKEN_ADDRESS,
+    "Cosmos ATOM (Test)",
+    "ATOM",
+    100,  // 100 ATOM per claim
+    0     // No cooldown for testing
+  );
+  extraTokens.WETH = await ensureToken(
+    process.env.WETH_TOKEN_ADDRESS,
+    "Wrapped ETH (Test)",
+    "WETH",
+    10,   // 10 WETH per claim
+    0     // No cooldown for testing
+  );
 
   // 2) Vault
   console.log("\n💰 Deploying Vault...");
@@ -39,6 +69,14 @@ async function main() {
   const vault = await Vault.deploy(baseTokenAddress);
   await vault.waitForDeployment();
   console.log("✅ Vault:", await vault.getAddress());
+
+  // Track the extra tokens in the Vault for portfolio management
+  console.log("\n📦 Adding tracked tokens to Vault...");
+  for (const [symbol, addr] of Object.entries(extraTokens)) {
+    const tx = await vault.addTrackedToken(addr);
+    await tx.wait();
+    console.log(`✅ Tracked ${symbol}: ${addr}`);
+  }
 
   // 3) MemoryContract
   console.log("\n🧠 Deploying MemoryContract...");
@@ -96,6 +134,7 @@ async function main() {
     tokens: {
       baseToken: baseTokenAddress,
       paymentToken: paymentTokenAddress,
+      extra: extraTokens,
     },
     contracts: {
       Vault: await vault.getAddress(),

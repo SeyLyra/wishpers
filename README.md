@@ -18,6 +18,32 @@
 4) Whisper the addresses to the frontend
    - `node scripts/sync-addresses.js`
 
+## 🏁 Hackathon MVP on Somnia TSNet
+
+1) Configure RPC & key
+   - `cp contracts/.env.example contracts/.env`
+   - Set `PRIVATE_KEY`, `CHAIN_RPC_URL`, `CHAIN_ID`
+   - Validate: `cd contracts && npm run check:rpc`
+
+2) Deploy core + mocks (optional mocks for yield)
+   - Core: `npm run deploy:somniaTestnet`
+   - Oracle: `npm run deploy:oracle`
+   - Lending: `npm run deploy:lending`
+   - Staking: `npm run deploy:staking`
+   - 1:1 Mock Adapter: `npm run deploy:mockAdapter`
+
+3) Sync addresses into the doc and frontend
+   - `node scripts/sync-addresses.js`
+   - Copy addresses into `server/.env` and `client/.env.local` (Vault, tokens)
+
+4) Run app
+   - Server: `cd server && npm run start:dev`
+   - Client: `cd client && npm run dev`
+
+Troubleshooting:
+- If `check:rpc` fails, update `CHAIN_ID` to match RPC `eth_chainId`.
+- If deploy scripts complain about missing tokens, ensure `contracts/deployment.json` has `tokens.base` and extras from core deploy.
+
 5) Open your portal
    - Server: `cd server && npm run start:dev`
    - Client: `cd client && npm run dev` → http://localhost:5173/
@@ -31,15 +57,15 @@
 
 ## 🧁 Env Sprinkles
 
-Frontend accepts both `VITE_` and `APP_` env styles:
+Frontend accepts both `VITE_` and `APP_` env styles (prefers `APP_` first):
 
-- RPC: `VITE_RPC_URL` or `APP_RPC_URL` (local: `http://127.0.0.1:8545/`)
-- Agent: `VITE_AGENT_ADDRESS` or `APP_AGENT_ADDRESS`
-- Vault: `VITE_VAULT_ADDRESS` or `APP_VAULT_ADDRESS`
-- Base token (WUSD): `VITE_BASE_TOKEN_ADDRESS` or `APP_BASE_TOKEN_ADDRESS`
-- Payment token (WPMT): `VITE_PAYMENT_TOKEN_ADDRESS` or `APP_PAYMENT_TOKEN_ADDRESS`
+- RPC: `APP_RPC_URL` or `VITE_RPC_URL` (local: `http://127.0.0.1:8545/`)
+- Agent: `APP_AGENT_ADDRESS` or `VITE_AGENT_ADDRESS`
+- Vault: `APP_VAULT_ADDRESS` or `VITE_VAULT_ADDRESS`
+- Base token (WUSD): `APP_BASE_TOKEN_ADDRESS` or `VITE_BASE_TOKEN_ADDRESS`
+- Payment token (WPMT): `APP_PAYMENT_TOKEN_ADDRESS` or `VITE_PAYMENT_TOKEN_ADDRESS`
 
-Pro tip: run `node scripts/sync-addresses.js` after deploy—it auto-fills `client/.env.local`.
+Pro tip: run `node scripts/sync-addresses.js` after deploy—it auto-fills `client/.env.local` with `APP_` (and optionally `VITE_`) prefixes.
 
 ---
 
@@ -76,7 +102,9 @@ This document provides a comprehensive guide to the project, including architect
 
 - Contracts (`contracts/.env`):
   - `PRIVATE_KEY`: Deployer key for testnet deployments.
-  - `SOMNIA_TESTNET_RPC_URL` or `DUCKCHAIN_TESTNET_RPC_URL`: RPC endpoints for testnet.
+  - `CHAIN_RPC_URL`: Primary RPC endpoint (unified). Falls back to `SOMNIA_RPC_URL`/`DUCKCHAIN_RPC_URL` if set.
+  - `CHAIN_ID`: Optional numeric chain id; Hardhat uses if provided.
+  - Legacy still supported: `SOMNIA_TESTNET_RPC_URL`, `DUCKCHAIN_TESTNET_RPC_URL`.
   - Optional token addresses if pre-existing: `BASE_TOKEN_ADDRESS`, `PAYMENT_TOKEN_ADDRESS`, `TREASURY_ADDRESS`.
 
 - Frontend (`client/.env.local` or `.env`): supports both `VITE_` and `APP_` prefixes.
@@ -84,15 +112,25 @@ This document provides a comprehensive guide to the project, including architect
     - `VITE_API_BASE_URL` or `APP_API_BASE_URL` (default `http://localhost:3001`).
   - RPC:
     - `VITE_RPC_URL` or `APP_RPC_URL` (local default `http://127.0.0.1:8545/`).
+    - `VITE_CHAIN_ID` and `VITE_CHAIN_NAME` optional for UI labels and network helpers.
+    - `VITE_BLOCK_EXPLORER` optional link base for tx/address pages.
   - Addresses (auto-written by `scripts/sync-addresses.js`):
     - Agent: `VITE_AGENT_ADDRESS` or `APP_AGENT_ADDRESS`
     - Vault: `VITE_VAULT_ADDRESS` or `APP_VAULT_ADDRESS`
     - Base token: `VITE_BASE_TOKEN_ADDRESS` or `APP_BASE_TOKEN_ADDRESS` (local `WUSD`)
     - Payment token: `VITE_PAYMENT_TOKEN_ADDRESS` or `APP_PAYMENT_TOKEN_ADDRESS` (local `WPMT`)
+  - IPFS:
+    - `VITE_IPFS_GATEWAY` defaults to `https://nftstorage.link/ipfs/` for consistency with backend.
   - Note: Vite defaults to exposing `VITE_` vars; we configured `client/vite.config.ts` with `envPrefix: ['VITE_', 'APP_']` to also expose `APP_` vars.
 
 - Backend (`server/.env`):
-  - See `server/env.example`. Provide RPC URL and contract addresses from `contracts/deployment.json`.
+  - Unified: `CHAIN_RPC_URL`, `CHAIN_ID`, `CHAIN_NETWORK` (label), `PRIVATE_KEY` for signer.
+  - Backwards compatible fallbacks supported for `SOMNIA_*`, `BLOCKCHAIN_*`, and `SEI_*`.
+  - IPFS:
+    - `IPFS_PROVIDER` defaults to `nft.storage` with `NFT_STORAGE_API_KEY`.
+    - Optional Pinata: set `IPFS_PROVIDER=pinata` and provide `IPFS_PINATA_API_KEY`, `IPFS_PINATA_SECRET_KEY`.
+    - `IPFS_GATEWAY_URL` defaults to `https://nftstorage.link/ipfs/`.
+  - Contract addresses: fill from `contracts/deployment.json`.
 
 ## Local Quickstart
 

@@ -3116,8 +3116,8 @@
       ]
     },
     "/Users/witchinclouds/hackhaton/final-wishpers/contracts/core/Marketplace.sol": {
-      "lastModificationDate": 1762122922393,
-      "contentHash": "d3baee88fcea7fa8d86d9016a0007729",
+      "lastModificationDate": 1762214710299,
+      "contentHash": "cef0e029302838d8a981e4cff97edc58",
       "sourceName": "core/Marketplace.sol",
       "solcConfig": {
         "version": "0.8.24",
@@ -3147,7 +3147,8 @@
         "@openzeppelin/contracts/access/AccessControl.sol",
         "@openzeppelin/contracts/token/ERC20/IERC20.sol",
         "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol",
-        "@openzeppelin/contracts/security/ReentrancyGuard.sol"
+        "@openzeppelin/contracts/security/ReentrancyGuard.sol",
+        "@openzeppelin/contracts/utils/Address.sol"
       ],
       "versionPragmas": [
         "^0.8.20"
@@ -3264,6 +3265,235 @@
       ],
       "artifacts": [
         "SomniaPriceOracleMock"
+      ]
+    },
+    "/Users/witchinclouds/hackhaton/final-wishpers/contracts/core/mocks/MockYieldFarm.sol": {
+      "lastModificationDate": 1762217540479,
+      "contentHash": "79b3bd91101be15400f30360a5caaab5",
+      "sourceName": "core/mocks/MockYieldFarm.sol",
+      "solcConfig": {
+        "version": "0.8.24",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC20/IERC20.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "MockYieldFarm"
+      ]
+    },
+    "/Users/witchinclouds/hackhaton/final-wishpers/contracts/core/mocks/MockLendingPool.sol": {
+      "lastModificationDate": 1762217528602,
+      "contentHash": "ac05f10394bc2c250ad9596e219db96d",
+      "sourceName": "core/mocks/MockLendingPool.sol",
+      "solcConfig": {
+        "version": "0.8.24",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC20/IERC20.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "MockLendingPool"
+      ]
+    },
+    "/Users/witchinclouds/hackhaton/final-wishpers/contracts/core/mocks/MockAssetAdapter.sol": {
+      "lastModificationDate": 1762216635387,
+      "contentHash": "4411678b4e01341a40b7f1e3ec171b1e",
+      "sourceName": "core/mocks/MockAssetAdapter.sol",
+      "solcConfig": {
+        "version": "0.8.24",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../interfaces/IAssetAdapter.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "MockAssetAdapter"
+      ]
+    },
+    "/Users/witchinclouds/hackhaton/final-wishpers/contracts/node_modules/@openzeppelin/contracts/access/Ownable.sol": {
+      "lastModificationDate": 1762122625278,
+      "contentHash": "5a20b2cad87ddb61c7a3a6af21289e28",
+      "sourceName": "@openzeppelin/contracts/access/Ownable.sol",
+      "solcConfig": {
+        "version": "0.8.24",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../utils/Context.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "Ownable"
+      ]
+    },
+    "/Users/witchinclouds/hackhaton/final-wishpers/contracts/core/FaucetToken.sol": {
+      "lastModificationDate": 1762217932643,
+      "contentHash": "bddcdc043e535b23b0af00592367c7da",
+      "sourceName": "core/FaucetToken.sol",
+      "solcConfig": {
+        "version": "0.8.24",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+        "@openzeppelin/contracts/access/Ownable.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "FaucetToken"
+      ]
+    },
+    "/Users/witchinclouds/hackhaton/final-wishpers/contracts/core/mocks/MockAToken.sol": {
+      "lastModificationDate": 1762217546051,
+      "contentHash": "103137320a4e978b0535f72d4a248b13",
+      "sourceName": "core/mocks/MockAToken.sol",
+      "solcConfig": {
+        "version": "0.8.24",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC20/ERC20.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "MockAToken"
       ]
     }
   }

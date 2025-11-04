@@ -51,17 +51,24 @@ module.exports = {
       gasPrice: 20000000000, // 20 gwei
     },
     somnia: {
-      url: process.env.SOMNIA_RPC_URL || "https://rpc.somnia.network",
+      url: process.env.SOMNIA_RPC_URL || "https://dream-rpc.somnia.network",
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
       // chainId optional; set if known
       // gasPrice optional; Hardhat will estimate
     },
     somniaTestnet: {
-      url: process.env.SOMNIA_TESTNET_RPC_URL || "https://testnet.somnia.network",
+      url: process.env.SOMNIA_TESTNET_RPC_URL || process.env.CHAIN_RPC_URL || "https://dream-rpc.somnia.network",
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
-      // chainId optional; set if known
+      chainId: process.env.CHAIN_ID ? Number(process.env.CHAIN_ID) : 50312,
       // gasPrice optional; Hardhat will estimate
-    }
+    },
+    // Unified custom network: reads CHAIN_RPC_URL and PRIVATE_KEY
+    custom: {
+      url: process.env.CHAIN_RPC_URL || process.env.SOMNIA_RPC_URL || "http://127.0.0.1:8545",
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      // Optionally specify chainId via CHAIN_ID
+      chainId: process.env.CHAIN_ID ? Number(process.env.CHAIN_ID) : undefined,
+    },
   },
   etherscan: {
     apiKey: {
@@ -89,18 +96,18 @@ module.exports = {
       },
       {
         network: "somnia",
-        chainId: 0, // TODO: replace with actual Somnia chain ID
+        chainId: 50312, // Update when mainnet is published
         urls: {
-          apiURL: "https://explorer.somnia.network/api",
-          browserURL: "https://explorer.somnia.network"
+          apiURL: "https://shannon-explorer.somnia.network/api",
+          browserURL: "https://shannon-explorer.somnia.network"
         }
       },
       {
         network: "somniaTestnet",
-        chainId: 0, // TODO: replace with actual Somnia testnet chain ID
+        chainId: 50312,
         urls: {
-          apiURL: "https://testnet-explorer.somnia.network/api",
-          browserURL: "https://testnet-explorer.somnia.network"
+          apiURL: "https://shannon-explorer.somnia.network/api",
+          browserURL: "https://shannon-explorer.somnia.network"
         }
       }
     ]

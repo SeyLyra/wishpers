@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/Address.sol";
 
 /**
  * @title Marketplace
@@ -19,7 +20,8 @@ contract Marketplace is AccessControl, ReentrancyGuard {
         Strategy,
         Upgrade,
         Insight,
-        ModelWeights
+        ModelWeights,
+        Soul  // Added Soul type for selling AI agents
     }
 
     struct MarketplaceItem {
@@ -35,6 +37,7 @@ contract Marketplace is AccessControl, ReentrancyGuard {
         uint256 createdAt;
         uint256 salesCount;
         uint256 totalRevenue;
+        address soulAddress; // Agent contract address (for Soul type items)
     }
 
     struct Rating {
@@ -101,9 +104,9 @@ contract Marketplace is AccessControl, ReentrancyGuard {
     ) external onlyRole(LISTER_ROLE) returns (uint256) {
         require(price > 0, "Price must be > 0");
         require(bytes(name).length > 0, "Name required");
-        
+
         itemCounter++;
-        
+
         items[itemCounter] = MarketplaceItem({
             itemId: itemCounter,
             seller: msg.sender,
@@ -116,41 +119,99 @@ contract Marketplace is AccessControl, ReentrancyGuard {
             active: true,
             createdAt: block.timestamp,
             salesCount: 0,
-            totalRevenue: 0
+            totalRevenue: 0,
+            soulAddress: address(0)
         });
-        
+
         sellerItems[msg.sender].push(itemCounter);
-        
+
         emit ItemListed(itemCounter, msg.sender, itemType, name, price);
-        
+
+        return itemCounter;
+    }
+
+    /**
+     * @notice List a soul (AI agent) for sale
+     * @param soulAddress The agent contract address
+     * @param name Soul name
+     * @param description Soul description
+     * @param metadataURI IPFS URI with soul details
+     * @param price Sale price in payment token
+     */
+    function listSoul(
+        address soulAddress,
+        string memory name,
+        string memory description,
+        string memory metadataURI,
+        uint256 price
+    ) external returns (uint256) {
+        require(price > 0, "Price must be > 0");
+        require(bytes(name).length > 0, "Name required");
+        require(soulAddress != address(0), "Invalid soul address");
+
+        itemCounter++;
+
+        items[itemCounter] = MarketplaceItem({
+            itemId: itemCounter,
+            seller: msg.sender,
+            itemType: ItemType.Soul,
+            name: name,
+            description: description,
+            metadataURI: metadataURI,
+            paymentToken: address(0), // Use native STT for soul sales
+            price: price,
+            active: true,
+            createdAt: block.timestamp,
+            salesCount: 0,
+            totalRevenue: 0,
+            soulAddress: soulAddress
+        });
+
+        sellerItems[msg.sender].push(itemCounter);
+
+        emit ItemListed(itemCounter, msg.sender, ItemType.Soul, name, price);
+
         return itemCounter;
     }
 
     /**
      * @notice Purchase an item
      */
-    function purchaseItem(uint256 itemId) external nonReentrant {
+    function purchaseItem(uint256 itemId) external payable nonReentrant {
         MarketplaceItem storage item = items[itemId];
         
         require(item.active, "Item not active");
         require(item.seller != msg.sender, "Cannot buy own item");
         require(!hasPurchased[itemId][msg.sender], "Already purchased");
         
-        IERC20 itemPaymentToken = IERC20(item.paymentToken);
         uint256 amountToPay = item.price;
-        
-        // Transfer payment
-        itemPaymentToken.safeTransferFrom(msg.sender, address(this), amountToPay);
-        
-        // Calculate fees
         uint256 feeAmount = (amountToPay * platformFee) / 10000;
         uint256 sellerAmount = amountToPay - feeAmount;
-        
-        // Distribute funds
-        if (feeAmount > 0) {
-            itemPaymentToken.safeTransfer(treasury, feeAmount);
+
+        if (item.paymentToken == address(0)) {
+            // Native STT payment (no ERC20 address)
+            require(msg.value == amountToPay, "Incorrect native payment amount");
+
+            // Distribute native funds
+            if (feeAmount > 0) {
+                (bool feeSent, ) = payable(treasury).call{value: feeAmount}("");
+                require(feeSent, "Treasury payment failed");
+            }
+            (bool sellerSent, ) = payable(item.seller).call{value: sellerAmount}("");
+            require(sellerSent, "Seller payment failed");
+        } else {
+            // ERC20 payment
+            IERC20 itemPaymentToken = IERC20(item.paymentToken);
+
+            // Transfer payment
+            itemPaymentToken.safeTransferFrom(msg.sender, address(this), amountToPay);
+            
+            // Distribute funds
+            if (feeAmount > 0) {
+                itemPaymentToken.safeTransfer(treasury, feeAmount);
+            }
+            itemPaymentToken.safeTransfer(item.seller, sellerAmount);
         }
-        itemPaymentToken.safeTransfer(item.seller, sellerAmount);
         
         // Update item stats
         item.salesCount++;
@@ -264,6 +325,56 @@ contract Marketplace is AccessControl, ReentrancyGuard {
      */
     function hasUserPurchased(uint256 itemId, address user) external view returns (bool) {
         return hasPurchased[itemId][user];
+    }
+
+    /**
+     * @notice Get all active soul listings
+     */
+    function getActiveSoulListings() external view returns (MarketplaceItem[] memory) {
+        // Count active soul listings
+        uint256 count = 0;
+        for (uint256 i = 1; i <= itemCounter; i++) {
+            if (items[i].active && items[i].itemType == ItemType.Soul) {
+                count++;
+            }
+        }
+
+        // Build array of active souls
+        MarketplaceItem[] memory soulListings = new MarketplaceItem[](count);
+        uint256 index = 0;
+        for (uint256 i = 1; i <= itemCounter; i++) {
+            if (items[i].active && items[i].itemType == ItemType.Soul) {
+                soulListings[index] = items[i];
+                index++;
+            }
+        }
+
+        return soulListings;
+    }
+
+    /**
+     * @notice Get all items of a specific type
+     */
+    function getItemsByType(ItemType itemType) external view returns (MarketplaceItem[] memory) {
+        // Count items of type
+        uint256 count = 0;
+        for (uint256 i = 1; i <= itemCounter; i++) {
+            if (items[i].active && items[i].itemType == itemType) {
+                count++;
+            }
+        }
+
+        // Build array
+        MarketplaceItem[] memory typeItems = new MarketplaceItem[](count);
+        uint256 index = 0;
+        for (uint256 i = 1; i <= itemCounter; i++) {
+            if (items[i].active && items[i].itemType == itemType) {
+                typeItems[index] = items[i];
+                index++;
+            }
+        }
+
+        return typeItems;
     }
 }
 

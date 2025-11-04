@@ -1,20 +1,38 @@
 {
-  "network": "localhost",
-  "deployer": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-  "treasury": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  "network": "custom",
+  "deployer": "0x2FF91E6FE477159A84fe4208C6cA9601c68935D4",
+  "treasury": "0x2ff91e6fe477159a84fe4208c6ca9601c68935d4",
   "tokens": {
-    "baseToken": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-    "paymentToken": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
+    "baseToken": "0xCc61e888bE53631067Ec828037894311d16795Cb",
+    "paymentToken": "0x0000000000000000000000000000000000000000",
+    "extra": {
+      "ATOM": "0xAc234b3339dD04B2Fb4F5A9928544414707589Eb",
+      "WETH": "0x0a4FDabFF4c2249552397407eFBB7734ADf2b596"
+    }
   },
   "contracts": {
-    "Vault": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
-    "MemoryContract": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
-    "Strategy": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
-    "AgentLogicImplementation": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
-    "AgentRegistry": "0x0165878A594ca255338adfa4d48449f69242Eb8F",
-    "AgentFactory": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
-    "Marketplace": "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
-    "Agent": "0x9bd03768a7DCc129555dE410FF8E85528A4F88b5"
+    "Vault": "0xA473bc736Ba0Fa20226FbBB0837C36c98ee52047",
+    "MemoryContract": "0xB27Bc3EBf57259981E511EFE16559b64F1d8dBc6",
+    "Strategy": "0x65a6b916cfA805293Fa6fFf1D908388FdD620c69",
+    "AgentLogicImplementation": "0x9CFb670C4cA43F8c00F4Aa763007c1A6F633DdE1",
+    "AgentRegistry": "0x60f9709fe48A52206195dB5a88e3b27b6db6E193",
+    "AgentFactory": "0x036993da05C13b57Cf143ACE7553C9a0059E2c40",
+    "Marketplace": "0xEFAB6d7C927aaC0fEFEa481D32618d4dc451Ef2E"
   },
-  "timestamp": "2025-11-02T22:55:55.820Z"
+  "timestamp": "2025-11-04T01:27:43.731Z",
+  "adapters": {
+    "SomniaPriceOracleMock": "0x9A1ECcA1292483576718a47e98Cc5321d6a426Dc",
+    "SomniaStakingAdapter": "0x4a420eA84d7c033C34672E0f4bE9a73c66b60512",
+    "SomniaLendingAdapter": "0x7C0d3174Db047E7eC5b7d24995241b961277ADae"
+  },
+  "updatedAt": "2025-11-04T01:37:29.805Z",
+  "mocks": {
+    "MockYieldFarm": "0x7Aa2370b88e079dbF867013Be8162B3C7c2F0Bf7",
+    "MockLendingPool": "0x79C047CEFAD85505434d93C193a7eADb0Ebb8321",
+    "aTokens": {
+      "base": "0x288b583f5868080015867e9F2CeD334AD18a968E",
+      "ATOM": "0xeBD9AA38b6Dd0778412e057ABd4adA3a269f4765",
+      "WETH": "0x1B4dBf8B62019FFE3bbA78EF604f28B8E9b61834"
+    }
+  }
 }
