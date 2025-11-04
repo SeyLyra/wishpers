@@ -13,35 +13,49 @@ async function main() {
   const PAYMENT_TOKEN_ADDRESS = process.env.PAYMENT_TOKEN_ADDRESS; // unused; Marketplace will use native STT
   const TREASURY_ADDRESS = process.env.TREASURY_ADDRESS || deployer.address;
 
-  // Helper to deploy FaucetToken for local/testing with faucet functionality
-  async function ensureToken(address, name, symbol, faucetAmount, cooldown) {
+  // Helper to deploy token with faucet functionality
+  async function ensureToken(address, name, symbol, faucetAmount, cooldown, useUSDC = false) {
     if (address && ethers.isAddress(address)) {
       console.log(`Using existing token for ${name}:`, address);
       return address;
     }
     console.log(`\n🪙 Deploying ${name} token (${symbol}) with faucet...`);
-    // Deploy FaucetToken with configurable faucet amounts
-    const FaucetToken = await ethers.getContractFactory("FaucetToken");
-    const token = await FaucetToken.deploy(
-      name,
-      symbol,
-      ethers.parseEther(faucetAmount.toString()), // Amount per claim
-      cooldown // Cooldown in seconds (0 = no cooldown for testing)
-    );
+
+    let token;
+    if (useUSDC) {
+      // Deploy MockUSDC (6 decimals)
+      const MockUSDC = await ethers.getContractFactory("MockUSDC");
+      token = await MockUSDC.deploy(
+        faucetAmount, // Amount per claim (in USDC, e.g., 1000)
+        cooldown // Cooldown in seconds
+      );
+    } else {
+      // Deploy FaucetToken (18 decimals)
+      const FaucetToken = await ethers.getContractFactory("FaucetToken");
+      token = await FaucetToken.deploy(
+        name,
+        symbol,
+        ethers.parseEther(faucetAmount.toString()), // Amount per claim
+        cooldown // Cooldown in seconds
+      );
+    }
+
     await token.waitForDeployment();
+    const decimals = useUSDC ? 6 : 18;
     console.log(`✅ ${name} deployed at:`, await token.getAddress());
-    console.log(`   Faucet: ${faucetAmount} ${symbol} per claim, ${cooldown}s cooldown`);
+    console.log(`   Faucet: ${faucetAmount} ${symbol} per claim, ${cooldown}s cooldown, ${decimals} decimals`);
     return await token.getAddress();
   }
 
   // 1) Base Token (USDC for vault/trading) with faucet functionality
-  // Faucet parameters: (address, name, symbol, faucetAmount, cooldownSeconds)
+  // Faucet parameters: (address, name, symbol, faucetAmount, cooldownSeconds, useUSDC)
   const baseTokenAddress = await ensureToken(
     BASE_TOKEN_ADDRESS,
     "Mock USDC",
     "USDC",
     1000, // 1000 USDC per claim
-    0     // No cooldown for testing (set to 3600 for 1 hour, 86400 for 24 hours)
+    0,    // No cooldown for testing (set to 3600 for 1 hour, 86400 for 24 hours)
+    true  // Use MockUSDC with 6 decimals
   );
   const paymentTokenAddress = ethers.ZeroAddress; // native STT for marketplace
 

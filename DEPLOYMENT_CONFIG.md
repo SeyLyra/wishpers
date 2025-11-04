@@ -1,5 +1,22 @@
 # Deployment Configuration
 
+## ⚠️ IMPORTANT: Re-deploy Required
+
+**MockUSDC (6 decimals) is now used instead of FaucetToken (18 decimals) for realistic USDC testing.**
+
+You need to re-deploy contracts to use the new MockUSDC token.
+
+## Token Strategy
+
+- **STT (Native)** → Marketplace currency (buy/sell souls)
+- **USDC (6 decimals)** → Soul portfolios, trading, DeFi, yield
+- **ATOM (18 decimals)** → Portfolio diversification
+- **WETH (18 decimals)** → DeFi operations
+
+See [TOKEN_STRATEGY.md](TOKEN_STRATEGY.md) for full details.
+
+---
+
 ## Essential Contract Addresses (from deployment.json)
 
 Copy these addresses to your `server/.env` file:
